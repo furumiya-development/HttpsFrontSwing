@@ -122,7 +122,10 @@ public class Frame1Control implements ActionListener, ListSelectionListener {
             return;
         }
 
-        String jsonStr = createJsonStr();
+        short code = Short.valueOf(window.getTextShohinCode().getText());
+        String name = window.getTextShohinName().getText();
+        String remarks = window.getTextRemarks().getText();
+        String jsonStr = service.createJsonStr(code, name, remarks);
         try {
             service.httpPost(window.getTextUri().getText() + "/" + window.getLabelUniqueId().getText(), jsonStr);
             if (authCheck(false) == true) {
@@ -152,7 +155,10 @@ public class Frame1Control implements ActionListener, ListSelectionListener {
             return;
         }
 
-        String jsonStr = createJsonStr();
+        short code = Short.valueOf(window.getTextShohinCode().getText());
+        String name = window.getTextShohinName().getText();
+        String remarks = window.getTextRemarks().getText();
+        String jsonStr = service.createJsonStr(code, name, remarks);
         try {
             service.httpPut(window.getTextUri().getText() + "/" + window.getLabelUniqueId().getText(), jsonStr);
             if (authCheck(false) == true) {
@@ -236,12 +242,12 @@ public class Frame1Control implements ActionListener, ListSelectionListener {
         return authRetryFlag;
     }
 
-    private String createJsonStr() {
+    /*private String createJsonStr() {
         String str = "{ \"shohinCode\":" + Short.valueOf(window.getTextShohinCode().getText());
         str += ", \"shohinName\": \"" + window.getTextShohinName().getText() +  "\", \"note\": \"" + window.getTextRemarks().getText() + "\" }";
 
         return str;
-    }
+    }*/
 
     private boolean shohinNumMatcher(String txt) {
         return txt.matches("^[0-9]{1,4}$");

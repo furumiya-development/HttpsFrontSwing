@@ -1,24 +1,15 @@
-package main.java.desk.model.appservice;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpConnectTimeoutException;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.Builder;
-
-import javax.net.ssl.SSLParameters;
+package main.java.desk.http;
 
 import main.java.desk.control.LastException;
-import main.java.desk.http.Authentication;
-import main.java.desk.http.HttpPort;
-import main.java.desk.http.HttpSetting;
+import main.java.desk.model.appservice.BusinessAppException;
 
-import java.net.http.HttpResponse;
-public class ShohinAppService {
+import javax.net.ssl.SSLParameters;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.*;
 
-    private HttpPort httpPort = new HttpPort();
+public class HttpPort {
+
     private HttpClient httpClient;
     private boolean fAuthentication = true;
     private String authType = "Basic "; //Basic認証orDigest認証
@@ -26,55 +17,6 @@ public class ShohinAppService {
     private static final String CONTENT_TYPE_NAME = "Content-Type";
     private static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
     private static final String AUTHORIZATION = "Authorization";
-
-    public ShohinAppService() {
-        var sslParams = new SSLParameters();
-        sslParams.setEndpointIdentificationAlgorithm("HTTPS"); //LDAPS
-        sslParams.setProtocols(new String[] {HttpSetting.sslProtocol[3]});
-        httpClient = HttpClient.newBuilder().sslParameters(sslParams)
-                .connectTimeout(java.time.Duration.ofMillis(1000))
-                .version(HttpClient.Version.HTTP_1_1).build();
-                //.sslContext(TrustCertificate.CertificateThrough()) //証明書検証はスルーする場合
-    }
-
-    public void httpGet(String uriStr) throws BusinessAppException {
-        URI uri = URI.create(uriStr);
-        HttpRequest req = httpPort.requestSetting(HttpRequest.newBuilder().GET(), uri);
-        HttpResponse<String> res = httpPort.httpRequest(httpClient, req);
-    }
-
-    public void httpPost(String uriStr, String jsonStr) throws BusinessAppException {
-        URI uri = URI.create(uriStr);
-        HttpRequest req = httpPort.requestSetting(HttpRequest.newBuilder().POST(HttpRequest.BodyPublishers.ofString(jsonStr)), uri);
-        HttpResponse<String> res = httpPort.httpRequest(httpClient, req);
-    }
-
-    public void httpPut(String uriStr, String jsonStr) throws BusinessAppException {
-        URI uri = URI.create(uriStr);
-        HttpRequest req = httpPort.requestSetting(HttpRequest.newBuilder().PUT(HttpRequest.BodyPublishers.ofString(jsonStr)), uri);
-        HttpResponse<String> res = httpPort.httpRequest(httpClient, req);
-    }
-
-    public void httpDelete(String uriStr) throws BusinessAppException {
-        URI uri = URI.create(uriStr);
-        HttpRequest req = httpPort.requestSetting(HttpRequest.newBuilder().DELETE(), uri);
-        HttpResponse<String> res = httpPort.httpRequest(httpClient, req);
-    }
-
-    public String createJsonStr(short code, String name, String remarks) {
-        var builder = new StringBuilder();
-
-        builder.append("{ \"shohinCode\":");
-        builder.append(code);
-        builder.append(", \"shohinName\": \"");
-        builder.append(name);
-        builder.append("\", \"note\": \"");
-        builder.append(remarks);
-        builder.append("\" }");
-
-        return builder.toString();
-    }
-
     private int lastStatusCode;
     private HttpHeaders lastHeaders;
     private String lastBody;
@@ -88,7 +30,17 @@ public class ShohinAppService {
         return lastBody;
     }
 
-    private HttpResponse<String> httpRequest(HttpClient client, HttpRequest req) throws BusinessAppException {
+    public HttpPort() {
+        var sslParams = new SSLParameters();
+        sslParams.setEndpointIdentificationAlgorithm("HTTPS"); //LDAPS
+        sslParams.setProtocols(new String[] {HttpSetting.sslProtocol[3]});
+        httpClient = HttpClient.newBuilder().sslParameters(sslParams)
+                .connectTimeout(java.time.Duration.ofMillis(1000))
+                .version(HttpClient.Version.HTTP_1_1).build();
+                //.sslContext(TrustCertificate.CertificateThrough()) //証明書検証はスルーする場合
+    }
+
+    public HttpResponse<String> httpRequest(HttpClient client, HttpRequest req) throws BusinessAppException {
         HttpResponse<String> response = null;
         //String resStr = "";
 
@@ -113,7 +65,7 @@ public class ShohinAppService {
         return response;
     }
 
-    private HttpRequest requestSetting(Builder builder, URI uri) {
+    public HttpRequest requestSetting(HttpRequest.Builder builder, URI uri) {
         if (fAuthentication && Authentication.getUserID().equals("") == false) {
             if (authType == Authentication.BASIC) {
                 //Basic認証
