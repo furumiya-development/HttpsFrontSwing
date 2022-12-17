@@ -20,12 +20,18 @@ public class ShohinAppService {
 
     private HttpPort httpPort = new HttpPort();
     private HttpClient httpClient;
-    private boolean fAuthentication = true;
-    private String authType = "Basic "; //Basic認証orDigest認証
-    //private FrameAuthDesign dialog = new FrameAuthDesign();
-    private static final String CONTENT_TYPE_NAME = "Content-Type";
-    private static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
-    private static final String AUTHORIZATION = "Authorization";
+    private int lastStatusCode;
+    private HttpHeaders lastHeaders;
+    private String lastBody;
+    public int getLastStatusCode() {
+        return lastStatusCode;
+    }
+    public HttpHeaders getLastHeaders() {
+        return lastHeaders;
+    }
+    public String getLastBody() {
+        return lastBody;
+    }
 
     public ShohinAppService() {
         var sslParams = new SSLParameters();
@@ -41,24 +47,35 @@ public class ShohinAppService {
         URI uri = URI.create(uriStr);
         HttpRequest req = httpPort.requestSetting(HttpRequest.newBuilder().GET(), uri);
         HttpResponse<String> res = httpPort.httpRequest(httpClient, req);
+        setLastStatus(res);
     }
 
     public void httpPost(String uriStr, String jsonStr) throws BusinessAppException {
         URI uri = URI.create(uriStr);
         HttpRequest req = httpPort.requestSetting(HttpRequest.newBuilder().POST(HttpRequest.BodyPublishers.ofString(jsonStr)), uri);
         HttpResponse<String> res = httpPort.httpRequest(httpClient, req);
+        setLastStatus(res);
     }
 
     public void httpPut(String uriStr, String jsonStr) throws BusinessAppException {
         URI uri = URI.create(uriStr);
         HttpRequest req = httpPort.requestSetting(HttpRequest.newBuilder().PUT(HttpRequest.BodyPublishers.ofString(jsonStr)), uri);
         HttpResponse<String> res = httpPort.httpRequest(httpClient, req);
+
+        setLastStatus(res);
     }
 
     public void httpDelete(String uriStr) throws BusinessAppException {
         URI uri = URI.create(uriStr);
         HttpRequest req = httpPort.requestSetting(HttpRequest.newBuilder().DELETE(), uri);
         HttpResponse<String> res = httpPort.httpRequest(httpClient, req);
+        setLastStatus(res);
+    }
+
+    private void setLastStatus(HttpResponse<String> response) {
+        lastStatusCode = response.statusCode();
+        lastHeaders = response.headers();
+        lastBody = response.body();
     }
 
     public String createJsonStr(short code, String name, String remarks) {
@@ -75,7 +92,7 @@ public class ShohinAppService {
         return builder.toString();
     }
 
-    private int lastStatusCode;
+    /*private int lastStatusCode;
     private HttpHeaders lastHeaders;
     private String lastBody;
     public int getLastStatusCode() {
@@ -135,5 +152,5 @@ public class ShohinAppService {
                 .setHeader(CONTENT_TYPE_NAME, CONTENT_TYPE_JSON).build();
 
         return request;
-    }
+    }*/
 }

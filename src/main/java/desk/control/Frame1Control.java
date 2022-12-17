@@ -159,6 +159,7 @@ public class Frame1Control implements ActionListener, ListSelectionListener {
         String name = window.getTextShohinName().getText();
         String remarks = window.getTextRemarks().getText();
         String jsonStr = service.createJsonStr(code, name, remarks);
+
         try {
             service.httpPut(window.getTextUri().getText() + "/" + window.getLabelUniqueId().getText(), jsonStr);
             if (authCheck(false) == true) {
@@ -170,7 +171,6 @@ public class Frame1Control implements ActionListener, ListSelectionListener {
             window.getFWindow().dispose();
             return;
         }
-
 
         if (service.getLastStatusCode() == HttpURLConnection.HTTP_OK) {
             window.getLabelArea().append("選択されたレコードを1件更新しました。\n");

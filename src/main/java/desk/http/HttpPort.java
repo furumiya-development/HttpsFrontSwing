@@ -17,18 +17,7 @@ public class HttpPort {
     private static final String CONTENT_TYPE_NAME = "Content-Type";
     private static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
     private static final String AUTHORIZATION = "Authorization";
-    private int lastStatusCode;
-    private HttpHeaders lastHeaders;
-    private String lastBody;
-    public int getLastStatusCode() {
-        return lastStatusCode;
-    }
-    public HttpHeaders getLastHeaders() {
-        return lastHeaders;
-    }
-    public String getLastBody() {
-        return lastBody;
-    }
+
 
     public HttpPort() {
         var sslParams = new SSLParameters();
@@ -58,9 +47,6 @@ public class HttpPort {
             LastException.logWrite();
             throw new BusinessAppException("オリジナル例外");
         }
-        lastStatusCode = response.statusCode();
-        lastHeaders = response.headers();
-        lastBody = response.body();
 
         return response;
     }
